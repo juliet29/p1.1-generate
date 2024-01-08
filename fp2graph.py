@@ -14,7 +14,13 @@ import shapely.plotting as splt
 import networkx as nx
 
 RGB_CHANNEL_SIZE = 3
-COLORWAY = ['#702632', '#A4B494', '#495867', '#912F40', "#81909E", "#F4442E", "#DB7C26", "#BB9BB0"]
+COLORWAY = ['#702632', '#A4B494', '#495867',  "#81909E", "#F4442E", "#DB7C26", "#BB9BB0"]
+
+
+GM = (np.sqrt(5)-1.0)/2.0
+W = 8
+H = W*GM
+SIZE = (W, H)
 
 class Bbox():
     def __init__(self, arr):
@@ -33,12 +39,6 @@ class Region():
     shape:Polygon = None
     centroid:tuple = None
 
-    # def __init__(self):
-    #     self.bbox:list = None
-    #     self.coords:list = None
-    #     self.shape:Polygon = None
-    #     self.centroid:tuple = None
-
 
 def create_coords(b:Bbox): 
     # clockwise from origin in bottom-left corner to match example: 
@@ -52,10 +52,6 @@ def create_coords(b:Bbox):
     ]
     return coords
 
-# def check_adjacency(curr_node_ix:int, nb_node_ix:int):
-#     # shapely check for adjacency 
-#     check = reg_d[curr_node_ix]["shape"].touches(reg_d[nb_node_ix]["shape"])
-#     return int(check) # True = 1, False = 0
 
 def check_adjacency(curr_region:Region.shape, nb_region:Region.shape):
     # shapely check for adjacency 
@@ -89,7 +85,7 @@ class FloorPlan2Graph:
         groups = df.groupby(["R", "G", "B"]).groups
         for ix, group_name in enumerate(groups.keys()):
             for i in list(groups[group_name]):
-                df.at[i, "Label"] = int(ix)
+                df.at[i, "Label"] = int(ix+1)
 
         self.tensor_labels = np.array(df["Label"]).reshape(self.tensor_shape[:2])
         return 
@@ -97,13 +93,10 @@ class FloorPlan2Graph:
 
     def array2shapely(self):
         assert type(self.tensor_labels) != None
-        # all_region_props called p in notebook 
         self.all_region_props = meas.regionprops(self.tensor_labels)
 
         self.regions = []
         for ix, region in enumerate(self.all_region_props): 
-            # self.regions[ix] = Region()
-             # self.regions[ix]
             r = Region()
             r.bbox = region.bbox
             r.coords = create_coords(Bbox(r.bbox))
@@ -115,9 +108,12 @@ class FloorPlan2Graph:
             
     def shapely2graph(self):
         self.init_graph()
+        g1 = self.view_graph()
         self.check_graph_adj()
+        g2 = self.view_graph()
         self.filter_graph()
-        return
+        g3 = self.view_graph()
+        return g1, g2, g3
 
 
 
@@ -160,7 +156,6 @@ class FloorPlan2Graph:
 
 
     # VISUALIZATIONS
-
     def view_plan_image(self):
         assert type(self.tensor) != None
         plt.imshow(self.tensor)
@@ -176,11 +171,6 @@ class FloorPlan2Graph:
     def view_plan_shapely(self):
         assert type(self.regions) != None
 
-        GM = (np.sqrt(5)-1.0)/2.0
-        W = 8
-        H = W*GM
-        SIZE = (W, H)
-
         fig = plt.figure(figsize=SIZE,  dpi=90)
         ax = fig.add_subplot(111)
 
@@ -192,6 +182,8 @@ class FloorPlan2Graph:
 
     def view_graph(self):
         assert self.CG
+        fig = plt.figure(figsize=SIZE,  dpi=90)
+
         pos = nx.spring_layout(self.CG)
         nx.draw_networkx_nodes(self.CG, pos)
         nx.draw_networkx_edges(self.CG, pos, )
