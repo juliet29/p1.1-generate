@@ -28,12 +28,16 @@ class Bbox():
 
 
 class Region():
-    def __init__(self):
-        self.bbox:list = None
-        self.coords:list = None
-        self.shape:Polygon = None
-        self.centroid:tuple = None
+    bbox:list = None
+    coords:list = None
+    shape:Polygon = None
+    centroid:tuple = None
 
+    # def __init__(self):
+    #     self.bbox:list = None
+    #     self.coords:list = None
+    #     self.shape:Polygon = None
+    #     self.centroid:tuple = None
 
 
 def create_coords(b:Bbox): 
@@ -92,7 +96,7 @@ class FloorPlan2Graph:
 
 
     def array2shapely(self):
-        assert self.tensor_labels
+        assert type(self.tensor_labels) != None
         # all_region_props called p in notebook 
         self.all_region_props = meas.regionprops(self.tensor_labels)
 
@@ -141,8 +145,8 @@ class FloorPlan2Graph:
             for pair in neighbors:
                 if self.CG.edges[pair]["adj"] == 0:
                     adj_val = check_adjacency(
-                        self.regions[pair[0].shape],
-                        self.regions[pair[1].shape])
+                        self.regions[pair[0]].shape,
+                        self.regions[pair[1]].shape)
                     
                     self.CG.edges[pair]["adj"] = adj_val
         return 
@@ -158,19 +162,19 @@ class FloorPlan2Graph:
     # VISUALIZATIONS
 
     def view_plan_image(self):
-        assert self.tensor
+        assert type(self.tensor) != None
         plt.imshow(self.tensor)
         return plt 
 
 
     def view_plan_segments(self):
-        assert self.tensor_labels
+        assert type(self.tensor_labels) != None
         border_color = [0,1,1]
         plt.imshow(mark_boundaries(self.tensor, self.tensor_labels,color=border_color))
         return plt 
 
     def view_plan_shapely(self):
-        assert self.regions
+        assert type(self.regions) != None
 
         GM = (np.sqrt(5)-1.0)/2.0
         W = 8
