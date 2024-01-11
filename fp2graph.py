@@ -14,8 +14,8 @@ import shapely.plotting as splt
 import networkx as nx
 
 RGB_CHANNEL_SIZE = 3
-COLORWAY = ['#702632', '#A4B494', '#495867',  "#81909E", "#F4442E", "#DB7C26", "#BB9BB0"]
 
+COLORWAY = ['#702632', '#A4B494', '#495867',  "#81909E", "#F4442E", "#DB7C26", "#BB9BB0"]
 
 GM = (np.sqrt(5)-1.0)/2.0
 W = 8
@@ -29,9 +29,6 @@ class Bbox():
         self.min_col=arr[1]
         self.max_row=arr[2]
         self.max_col=arr[3]
-
-
-
 
 class Region():
     bbox:list = None
@@ -61,6 +58,7 @@ def check_adjacency(curr_region:Region.shape, nb_region:Region.shape):
 
 
 
+
 class FloorPlan2Graph:
     def __init__(self, PATH):
         self.PATH = PATH
@@ -79,21 +77,21 @@ class FloorPlan2Graph:
             self.tensor2D.reshape(self.tensor.shape)
             )
         
-        df = pd.DataFrame(self.tensor2D, columns=["R", "G", "B"])
-        df["Label"] = np.zeros(len(df), dtype=np.int8)
+        self.df = pd.DataFrame(self.tensor2D, columns=["R", "G", "B"])
+        self.df["Label"] = np.zeros(len(self.df), dtype=np.int8)
 
-        groups = df.groupby(["R", "G", "B"]).groups
+        groups = self.df.groupby(["R", "G", "B"]).groups
         for ix, group_name in enumerate(groups.keys()):
             for i in list(groups[group_name]):
-                df.at[i, "Label"] = int(ix+1)
+                self.df.at[i, "Label"] = int(ix+1)
 
-        self.tensor_labels = np.array(df["Label"]).reshape(self.tensor_shape[:2])
+        self.tensor_labels = np.array(self.df["Label"]).reshape(self.tensor_shape[:2])
         return 
 
 
     def array2shapely(self):
         assert type(self.tensor_labels) != None
-        self.all_region_props = meas.regionprops(self.tensor_labels)
+        self.all_region_props = meas.regionprops(self.tensor_labels, self.tensor)
 
         self.regions = []
         for ix, region in enumerate(self.all_region_props): 
