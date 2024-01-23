@@ -4,7 +4,7 @@ import pandas as pd
 
 import imageio.v3 as iio
 
-from matplotlib.colors import Normalize, LogNorm
+from matplotlib.colors import LogNorm
 
 from sklearn.cluster import KMeans
 
