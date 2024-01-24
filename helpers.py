@@ -4,6 +4,7 @@ from enum import Enum
 from shapely import Polygon
 import numpy as np
 import plotly.express as px
+import networkx as nx
 
 
 RGB_CHANNEL_SIZE = 3
@@ -38,6 +39,13 @@ class Region():
     type:RegionType = None
     label:str = None
     area:float = None
+
+class PlanData:
+    tensor:np.ndarray = None
+    tensor_labels:np.ndarray = None
+    tensor_labels_w_doors:np.ndarray = None
+    regions:[Region] = None
+    graph:nx.Graph = None
 
 
 def create_coords(b:Bbox): 

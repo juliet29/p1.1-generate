@@ -24,7 +24,7 @@ class GraphLogic:
                 zip(Y2D.ravel(), X2D.ravel())}
 
         nx.set_edge_attributes(self.CG, attrs)
-        return 
+        return self.CG
 
     def check_graph_adj(self):
         for n in self.CG.nodes:

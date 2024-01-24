@@ -5,6 +5,8 @@ import imageio.v3 as iio
 
 from sklearn.cluster import KMeans
 
+
+
 import skimage.measure as meas
 
 from helpers import *
@@ -15,14 +17,12 @@ class PlanReader:
     def __init__(self, PATH):
         self.PATH = PATH
 
-
-
     # CONVERSION FUNCTIONS      
     def image2tensor(self):
         self.tensor = iio.imread(self.PATH, pilmode='RGB') 
         self.tensor_shape = self.tensor.shape
         assert self.tensor_shape[-1] == RGB_CHANNEL_SIZE
-        return 
+        return self.tensor
     
 
 
@@ -40,7 +40,7 @@ class PlanReader:
                 self.df.at[i, "Label"] = int(ix+1)
 
         self.tensor_labels = np.array(self.df["Label"]).reshape(self.tensor_shape[:2])
-        return 
+        return self.tensor_labels
     
 
     
@@ -59,7 +59,9 @@ class PlanReader:
         self.tensor_labels_w_doors = self.tensor_labels_w_doors.astype(np.int64)
 
         for x, y, door_label in zip(self.indices_split[0], self.indices_split[1], y_pred):
-            self.tensor_labels_w_doors[x,y] = DOOR_CODE+door_label 
+            self.tensor_labels_w_doors[x,y] = DOOR_CODE+door_label
+
+        return self.tensor_labels_w_doors 
 
 
 
@@ -95,5 +97,4 @@ class PlanReader:
             if r.unique_colors != {(0,0,0)}:
                 self.regions.append(r)
 
-
-        return 
+        return self.regions
