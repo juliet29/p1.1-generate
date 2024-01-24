@@ -20,6 +20,8 @@ from visualizer import Visualizer
 
 from helpers import *
 
+import traceback
+
 
 
 class Processor:
@@ -43,4 +45,13 @@ class Processor:
     
     def configure_graph(self, DEBUG=False):
         graph_editor = GraphLogic(self.regions)
-        self.CG = graph_editor.init_graph()
+        try:
+            self.CG = graph_editor.init_graph()
+            self.door_adj_labels = graph_editor.study_graph_adj()
+            self.correct_edges = graph_editor.create_correct_adj()
+            self.CG = graph_editor.create_correct_graph()
+            if DEBUG:
+                fig = self.v.view_graph(self.CG)
+        except Exception as e:
+            print(f"Creating graph failed \n {e} \n" )
+            traceback.print_exc()

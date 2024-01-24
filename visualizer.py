@@ -48,10 +48,11 @@ class Visualizer:
 
     def view_graph(self, graph:nx.Graph):
         fig = plt.figure(figsize=SIZE,  dpi=90)
+        labels = {node: graph.nodes[node]['label'] for node in graph.nodes}
 
         pos = nx.spring_layout(graph)
         nx.draw_networkx_nodes(graph, pos)
         nx.draw_networkx_edges(graph, pos, )
-        nx.draw_networkx_labels(graph, pos)
+        nx.draw_networkx_labels(graph, pos, labels=labels)
         return plt
     

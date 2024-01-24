@@ -25,22 +25,48 @@ class GraphLogic:
 
         nx.set_edge_attributes(self.CG, attrs)
         return self.CG
+    
+    def study_graph_adj(self):
+        self.door_adj_nodes = []
+        self.door_adj_labels = []
 
-    def check_graph_adj(self):
-        for n in self.CG.nodes:
-            neighbors = list(nx.bfs_edges(self.CG, source=0, depth_limit=1))
-            for pair in neighbors:
-                if self.CG.edges[pair]["adj"] == 0:
-                    adj_val = check_adjacency(
-                        self.regions[pair[0]].shape,
-                        self.regions[pair[1]].shape)
-                    
-                    self.CG.edges[pair]["adj"] = adj_val
-        return 
+        for node_ix, attrs in self.CG.nodes(data=True):
+            if attrs["type"] == RegionType.DOOR:
+                neighbors = list(nx.bfs_edges(self.CG, source=node_ix, depth_limit=1))
 
-    def filter_graph(self):
-        for e in self.CG.edges:
-            if self.CG.edges[e]["adj"] == 0:
-                self.CG.remove_edge(*e)
+                for pair in neighbors:
+                    if self.CG.edges[pair]["adj"] == 0:
+                        ni = pair[0]
+                        nj = pair[1]
+                        adj_val = check_adjacency(
+                            self.regions[ni].shape,
+                            self.regions[nj].shape)
+                        if adj_val:
+                            self.door_adj_labels.append((self.CG.nodes[ni]['label'], self.CG.nodes[nj]['label']))
+                            self.door_adj_nodes.append((ni, nj))
+                        
+                        self.CG.edges[pair]["adj"] = adj_val
 
-        pass
+        return self.door_adj_labels
+
+
+    def create_correct_adj(self):
+        grouped_tuples = {}
+        for tup in self.door_adj_nodes:
+            first_item = tup[0]
+            if first_item not in grouped_tuples:
+                grouped_tuples[first_item] = [tup[1]]
+            else:
+                grouped_tuples[first_item].append(tup[1])
+
+        prelim_edges = {tuple(i): {"adj": 1} for i in grouped_tuples.values()}
+        self.correct_edges  = {key: value for key, value in prelim_edges.items() if len(key) > 1}
+
+        return self.correct_edges
+
+
+    def create_correct_graph(self):
+        self.CG.remove_edges_from(self.CG.edges())
+        self.CG.add_edges_from(self.correct_edges)
+
+        return self.CG
