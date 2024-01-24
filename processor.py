@@ -29,12 +29,12 @@ class Processor:
         self.v = Visualizer()
 
 
-    def read_plan(self, PATH, DEBUG=False):
+    def read_plan(self, PATH, num_doors=6, DEBUG=False):
         reader = PlanReader(PATH)
         try:
             self.tensor = reader.image2tensor()
             self.tensor_labels = reader.segment_tensor()
-            self.tensor_labels_w_doors  = reader.further_segment_doors()
+            self.tensor_labels_w_doors  = reader.further_segment_doors(num_doors)
             self.regions = reader.array2shapely()
             if DEBUG:
                 fig = self.v.view_plan_shapely(self.regions)

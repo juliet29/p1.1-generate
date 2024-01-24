@@ -5,8 +5,6 @@ import imageio.v3 as iio
 
 from sklearn.cluster import KMeans
 
-
-
 import skimage.measure as meas
 
 from helpers import *
